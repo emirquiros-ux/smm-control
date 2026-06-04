@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMM Control Operativo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;color:#1a1a2e;padding:1.5rem;}
+.container{max-width:1100px;margin:0 auto;}
+.header{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1rem;border:0.5px solid #e0e0e0;}
+.header h1{font-size:20px;font-weight:600;color:#1a1a2e;}
+.header p{font-size:13px;color:#666;margin-top:2px;}
+.badge-live{background:#EAF3DE;color:#3B6D11;font-size:11px;padding:4px 12px;border-radius:99px;font-weight:500;}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1rem;}
+.kpi{background:#fff;border-radius:10px;padding:1rem 1.25rem;border:0.5px solid #e0e0e0;}
+.kpi-label{font-size:12px;color:#888;margin-bottom:4px;}
+.kpi-value{font-size:26px;font-weight:600;}
+.kpi-value.blue{color:#185FA5;}
+.kpi-value.green{color:#3B6D11;}
+.kpi-value.amber{color:#854F0B;}
+.kpi-value.red{color:#A32D2D;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.card{background:#fff;border-radius:12px;padding:1rem 1.25rem;border:0.5px solid #e0e0e0;}
+.section-title{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;}
+.disp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.disp-item{background:#f4f5f7;border-radius:8px;padding:8px 10px;}
+.disp-cod{font-size:12px;font-weight:600;font-family:monospace;color:#1a1a2e;}
+.disp-desc{font-size:11px;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.taller-item{background:#FAEEDA;}
+.taller-cod{color:#854F0B;}
+.tabs{display:flex;gap:6px;margin-bottom:0.75rem;flex-wrap:wrap;}
+.tab{font-size:12px;padding:5px 14px;border-radius:8px;border:0.5px solid #ddd;background:#fff;color:#666;cursor:pointer;transition:all 0.15s;}
+.tab.active,.tab:hover{background:#f0f0f0;color:#1a1a2e;font-weight:500;}
+.search-bar{width:100%;padding:8px 12px;font-size:13px;border:0.5px solid #ddd;border-radius:8px;background:#fff;color:#1a1a2e;margin-bottom:0.75rem;outline:none;}
+.search-bar:focus{border-color:#378ADD;}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+th{text-align:left;padding:7px 8px;font-weight:600;font-size:11px;color:#888;border-bottom:1px solid #eee;background:#fafafa;}
+td{padding:8px 8px;border-bottom:0.5px solid #f0f0f0;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+tr:hover td{background:#fafafa;}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px;}
+.pill-vencido{background:#FCEBEB;color:#791F1F;}
+.pill-hoy{background:#FAECE7;color:#712B13;}
+.pill-rojo{background:#FAEEDA;color:#633806;}
+.pill-amarillo{background:#FFF8E1;color:#854F0B;}
+.pill-verde{background:#EAF3DE;color:#3B6D11;}
+.pill-disponible{background:#E6F1FB;color:#185FA5;}
+.pill-taller{background:#EEEDFE;color:#3C3489;}
+.footer-note{font-size:11px;color:#aaa;text-align:right;padding-top:0.5rem;border-top:0.5px solid #eee;margin-top:0.5rem;}
+.snapshot-banner{background:#FFF8E1;border:0.5px solid #EF9F27;border-radius:10px;padding:0.6rem 1rem;margin-bottom:1rem;font-size:12px;color:#854F0B;display:none;align-items:center;gap:8px;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="snapshot-banner" id="snapshotBanner">
+  <i class="ti ti-calendar-event" style="font-size:16px;"></i>
+  <span id="snapshotText"></span>
+</div>
+
+<div class="header">
+  <div>
+    <h1>SMM Control Operativo</h1>
+    <p id="headerDate">Cargando...</p>
+  </div>
+  <span class="badge-live">&#x25CF; En línea</span>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="kpi-label">Total equipos</div><div class="kpi-value blue" id="kpiTotal">—</div></div>
+  <div class="kpi"><div class="kpi-label">Alquilados</div><div class="kpi-value green" id="kpiAlq">—</div></div>
+  <div class="kpi"><div class="kpi-label">Disponibles</div><div class="kpi-value blue" id="kpiDisp">—</div></div>
+  <div class="kpi"><div class="kpi-label">En taller</div><div class="kpi-value amber" id="kpiTaller">—</div></div>
+  <div class="kpi"><div class="kpi-label">Vencidos</div><div class="kpi-value red" id="kpiVenc">—</div></div>
+</div>
+
+<div class="two-col">
+  <div class="card" style="overflow-y:auto;max-height:420px;">
+    <div class="section-title">Equipos por cliente</div>
+    <div id="clientBars"></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Equipos disponibles</div>
+    <div class="disp-grid" id="dispGrid"></div>
+    <div style="margin-top:1rem;border-top:0.5px solid #eee;padding-top:0.75rem;">
+      <div class="section-title" style="margin-bottom:0.5rem;">En taller</div>
+      <div class="disp-grid" id="tallerGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">Control de equipos</div>
+  <div class="tabs" id="tabContainer">
+    <button class="tab active" data-filter="all">Todos</button>
+    <button class="tab" data-filter="ALQUILADO">Alquilados</button>
+    <button class="tab" data-filter="urgente">Urgentes</button>
+    <button class="tab" data-filter="DISPONIBLE">Disponibles</button>
+  </div>
+  <input type="text" class="search-bar" id="searchInput" placeholder="Buscar por código, equipo o cliente...">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:90px">Código</th>
+        <th style="width:175px">Equipo</th>
+        <th style="width:155px">Cliente</th>
+        <th style="width:130px">Proyecto</th>
+        <th style="width:90px">F. Corte</th>
+        <th style="width:50px;text-align:center">Días</th>
+        <th style="width:90px">Alerta</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div id="tableCount" class="footer-note"></div>
+</div>
+
+<div style="text-align:center;margin-top:1rem;font-size:11px;color:#bbb;">
+  SMM Heavy Equipment Rental &mdash; Sistema de Control Operativo v1.0
+</div>
+
+</div>
+
+<script>
+var EQUIPOS_DATA = [];
+
+function initDashboard(data, fechaGeneracion, esSnapshot) {
+  EQUIPOS_DATA = data;
+
+  if (esSnapshot && fechaGeneracion) {
+    var banner = document.getElementById('snapshotBanner');
+    banner.style.display = 'flex';
+    document.getElementById('snapshotText').textContent =
+      'Este dashboard es un registro histórico generado el ' + fechaGeneracion + '. Refleja el estado de la flota en esa fecha.';
+  }
+
+  document.getElementById('headerDate').textContent =
+    'Resumen de flota — ' + (fechaGeneracion || new Date().toLocaleDateString('es-PA'));
+
+  var alq = data.filter(function(e){return e.estado==='ALQUILADO';}).length;
+  var disp = data.filter(function(e){return e.estado==='DISPONIBLE';}).length;
+  var tall = data.filter(function(e){return e.estado==='TALLER';}).length;
+  var venc = data.filter(function(e){return e.alerta==='VENCIDO';}).length;
+  document.getElementById('kpiTotal').textContent = data.length;
+  document.getElementById('kpiAlq').textContent = alq;
+  document.getElementById('kpiDisp').textContent = disp;
+  document.getElementById('kpiTaller').textContent = tall;
+  document.getElementById('kpiVenc').textContent = venc;
+
+  var tabAll = document.querySelector('[data-filter="all"]');
+  var tabAlq = document.querySelector('[data-filter="ALQUILADO"]');
+  var tabDisp = document.querySelector('[data-filter="DISPONIBLE"]');
+  tabAll.textContent = 'Todos (' + data.length + ')';
+  tabAlq.textContent = 'Alquilados (' + alq + ')';
+  tabDisp.textContent = 'Disponibles (' + disp + ')';
+
+  var clientCount = {};
+  data.filter(function(e){return e.estado==='ALQUILADO';}).forEach(function(e){
+    clientCount[e.cliente] = (clientCount[e.cliente]||0)+1;
+  });
+  var sorted = Object.entries(clientCount).sort(function(a,b){return b[1]-a[1];});
+  var maxVal = sorted.length ? sorted[0][1] : 1;
+  document.getElementById('clientBars').innerHTML = sorted.map(function(item){
+    var cliente = item[0]; var count = item[1];
+    var pct = Math.round((count/maxVal)*100);
+    var short = cliente.length > 24 ? cliente.slice(0,22)+'…' : cliente;
+    return '<div style="margin-bottom:8px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">' +
+      '<span style="font-size:11px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+cliente+'">'+short+'</span>' +
+      '<span style="font-size:12px;font-weight:600;color:#1a1a2e;margin-left:8px;min-width:20px;text-align:right;">'+count+'</span>' +
+      '</div>' +
+      '<div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">' +
+      '<div style="height:100%;width:'+pct+'%;background:#378ADD;border-radius:3px;"></div>' +
+      '</div></div>';
+  }).join('');
+
+  var disponibles = data.filter(function(e){return e.estado==='DISPONIBLE';});
+  var taller = data.filter(function(e){return e.estado==='TALLER';});
+  document.getElementById('dispGrid').innerHTML = disponibles.map(function(e){
+    return '<div class="disp-item"><div class="disp-cod">'+e.cod+'</div><div class="disp-desc" title="'+e.desc+'">'+e.desc+'</div></div>';
+  }).join('');
+  document.getElementById('tallerGrid').innerHTML = taller.map(function(e){
+    return '<div class="disp-item taller-item"><div class="disp-cod taller-cod">'+e.cod+'</div><div class="disp-desc" title="'+e.desc+'">'+e.desc+'</div></div>';
+  }).join('');
+
+  renderTable('all', '');
+
+  document.getElementById('tabContainer').querySelectorAll('.tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+      btn.classList.add('active');
+      renderTable(btn.dataset.filter, document.getElementById('searchInput').value);
+    });
+  });
+  document.getElementById('searchInput').addEventListener('input', function(e){
+    var activeFilter = document.querySelector('.tab.active').dataset.filter;
+    renderTable(activeFilter, e.target.value);
+  });
+}
+
+function pillClass(a){
+  if(a==='VENCIDO') return 'pill pill-vencido';
+  if(a==='VENCE HOY') return 'pill pill-hoy';
+  if(a==='ROJO') return 'pill pill-rojo';
+  if(a==='AMARILLO') return 'pill pill-amarillo';
+  if(a==='VERDE') return 'pill pill-verde';
+  if(a==='DISPONIBLE') return 'pill pill-disponible';
+  if(a==='TALLER') return 'pill pill-taller';
+  return 'pill';
+}
+
+function renderTable(filter, search){
+  var data = EQUIPOS_DATA;
+  if(filter==='ALQUILADO') data=data.filter(function(e){return e.estado==='ALQUILADO';});
+  else if(filter==='DISPONIBLE') data=data.filter(function(e){return e.estado==='DISPONIBLE';});
+  else if(filter==='urgente') data=data.filter(function(e){return ['VENCIDO','VENCE HOY','ROJO'].includes(e.alerta);});
+  if(search){
+    var s=search.toLowerCase();
+    data=data.filter(function(e){
+      return e.cod.toLowerCase().includes(s)||e.desc.toLowerCase().includes(s)||
+             e.cliente.toLowerCase().includes(s)||e.proyecto.toLowerCase().includes(s);
+    });
+  }
+  document.getElementById('tableBody').innerHTML = data.map(function(e){
+    return '<tr>' +
+      '<td style="font-weight:600;font-family:monospace;font-size:12px;">'+e.cod+'</td>' +
+      '<td title="'+e.desc+'">'+e.desc+'</td>' +
+      '<td style="color:#666;font-size:12px;" title="'+e.cliente+'">'+e.cliente+'</td>' +
+      '<td style="color:#666;font-size:12px;" title="'+e.proyecto+'">'+e.proyecto+'</td>' +
+      '<td style="font-size:12px;font-weight:500;">'+e.fechaCorte+'</td>' +
+      '<td style="text-align:center;font-weight:600;font-size:13px;">'+(e.diasCorte!==null?e.diasCorte:'—')+'</td>' +
+      '<td><span class="'+pillClass(e.alerta)+'">'+e.alerta+'</span></td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('tableCount').textContent =
+    'Mostrando ' + data.length + ' de ' + EQUIPOS_DATA.length + ' equipos';
+}
+
+initDashboard([], '04/06/2026', false);
+</script>
+</body>
+</html>
